@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-83d9afe7-88ab-4d72-92c0-b360aed36d5c/styles.css">
+<script src="_ds/modernist-83d9afe7-88ab-4d72-92c0-b360aed36d5c/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap">
+<style>
+body{margin:0;background:var(--color-neutral-200);font-family:"Archivo",system-ui,sans-serif}
+a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
+*{-webkit-font-smoothing:antialiased}
+.sw-scroll{scrollbar-width:none}
+.sw-scroll::-webkit-scrollbar{display:none}
+@keyframes swpulse{0%,100%{opacity:.4}50%{opacity:1}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:48px 24px;box-sizing:border-box">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+<div style="height:100%;display:flex;flex-direction:column;background:var(--color-neutral-100);color:var(--color-text);font-family:'Archivo',system-ui,sans-serif;padding-top:58px;box-sizing:border-box">
+
+<div style="display:flex;align-items:center;gap:9px;padding:2px 20px 14px;flex:none">
+<div style="width:11px;height:11px;background:var(--color-accent);flex:none"></div>
+<div style="font-weight:800;font-size:14px;letter-spacing:.2em">SWATCH</div>
+<div style="flex:1"></div>
+<div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ screenLabel }}</div>
+</div>
+
+<div class="sw-scroll" style="flex:1;overflow-y:auto;overscroll-behavior:contain">
+
+<sc-if value="{{ isScan }}" hint-placeholder-val="{{ true }}">
+<div>
+  <div style="position:relative;height:330px;background:var(--color-neutral-800);overflow:hidden">
+    <video ref="{{ setVideo }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">
+      <div style="width:128px;height:128px;border:2px solid #fff;box-shadow:0 0 0 2000px rgba(248,244,244,.18);position:relative">
+        <div style="position:absolute;left:-1px;top:50%;width:12px;height:2px;background:var(--color-accent)"></div>
+        <div style="position:absolute;right:-1px;top:50%;width:12px;height:2px;background:var(--color-accent)"></div>
+        <div style="position:absolute;top:-1px;left:50%;height:12px;width:2px;background:var(--color-accent)"></div>
+        <div style="position:absolute;bottom:-1px;left:50%;height:12px;width:2px;background:var(--color-accent)"></div>
+      </div>
+    </div>
+    <div style="position:absolute;left:16px;top:14px;display:flex;gap:7px;align-items:center">
+      <div style="width:6px;height:6px;background:{{ camDot }};animation:swpulse 1.8s infinite"></div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:#fff">{{ camLabel }}</div>
+    </div>
+    <div style="position:absolute;inset:0;background:#fff;pointer-events:none;transition:opacity .28s;opacity:{{ flashOp }}"></div>
+  </div>
+
+  <div style="padding:24px 20px 0">
+    <div style="font-size:27px;font-weight:800;letter-spacing:-.025em;line-height:1.1;max-width:15ch">Fill the square with the cloth.</div>
+    <div style="font-size:13px;line-height:1.6;color:var(--color-neutral-700);margin-top:10px;max-width:34ch">Even light, no folds. Shadow reads as a duller color than the fabric really is.</div>
+  </div>
+
+  <div style="padding:22px 20px 0">
+    <button class="btn btn-primary btn-block" onClick="{{ capture }}" style="justify-content:flex-start;height:52px;font-size:13px;letter-spacing:.14em">SAMPLE COLOR</button>
+  </div>
+
+  <div style="padding:28px 20px 0">
+    <div style="border-top:2px solid var(--color-divider);padding-top:16px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">OR ADD A LINK</div>
+      <div style="font-size:13px;line-height:1.6;color:var(--color-neutral-700);margin-top:6px;max-width:34ch">Paste a product page from any online shop. We read the listing photo and measure the garment.</div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <input class="input" type="url" value="{{ linkUrl }}" onChange="{{ onLink }}" onKeyDown="{{ onLinkKey }}" placeholder="https://shop.com/product/…" style="flex:1;min-width:0;height:46px;font-size:13px">
+        <button class="btn btn-secondary" onClick="{{ importLink }}" style="flex:none;height:46px;font-size:11px;letter-spacing:.14em;justify-content:flex-start">{{ linkBtn }}</button>
+      </div>
+      <sc-if value="{{ linkErr }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:11px;font-weight:600;color:var(--color-accent-700);margin-top:8px">{{ linkErr }}</div>
+      </sc-if>
+      <div style="font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700);margin-top:16px">TRY A SAMPLE LISTING</div>
+      <div style="display:flex;flex-direction:column;margin-top:4px">
+        <sc-for list="{{ sampleLinks }}" as="s" hint-placeholder-count="3">
+          <button onClick="{{ s.onTap }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-neutral-200)">
+            <div style="width:10px;height:10px;background:{{ s.hex }};flex:none"></div>
+            <div style="flex:1;min-width:0;font-size:12px;font-weight:600;color:var(--color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.label }}</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700)">ADD</div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ camFailed }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:28px 20px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">NO CAMERA — TAP A SAMPLE</div>
+      <button class="btn btn-ghost" onClick="{{ retryCam }}" style="height:32px;padding:0 10px;font-size:9px;letter-spacing:.14em;justify-content:flex-start">RETRY CAMERA</button>
+    </div>
+    <div style="font-size:11px;line-height:1.5;color:var(--color-neutral-700);margin-top:4px">If access was blocked, allow the camera in your browser's site settings first.</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+      <sc-for list="{{ fallbacks }}" as="f" hint-placeholder-count="6">
+        <button onClick="{{ f.onTap }}" style="all:unset;cursor:pointer;display:block">
+          <div style="height:64px;background:{{ f.hex }}"></div>
+          <div style="font-size:8.5px;font-weight:700;letter-spacing:.14em;padding-top:6px;color:var(--color-neutral-700)">{{ f.label }}</div>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="height:36px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isResult }}" hint-placeholder-val="{{ false }}">
+<div>
+  <div style="height:210px;background:{{ hex }};position:relative">
+    <div style="position:absolute;right:20px;bottom:18px;width:70px;height:88px;background:var(--color-neutral-300);overflow:hidden">
+      <img ref="{{ setShot }}" alt="Capture" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08)">
+    </div>
+    <div style="position:absolute;left:20px;bottom:18px;color:{{ on }};font-size:10px;font-weight:700;letter-spacing:.16em">{{ hex }}</div>
+  </div>
+
+  <div style="padding:24px 20px 0">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ family }}</div>
+    <div style="font-size:40px;font-weight:800;letter-spacing:-.035em;line-height:1;margin-top:8px">{{ name }}</div>
+    <div style="font-size:13px;line-height:1.6;color:var(--color-neutral-700);margin-top:10px">{{ undertoneLine }}</div>
+  </div>
+
+  <div style="padding:24px 20px 0">
+    <sc-for list="{{ readouts }}" as="r" hint-placeholder-count="4">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--color-neutral-200)">
+        <span style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ r.k }}</span>
+        <span style="font-size:13px;font-weight:600;letter-spacing:.01em">{{ r.v }}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ hasSource }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px 0;border-top:1px solid var(--color-neutral-200);border-bottom:1px solid var(--color-neutral-200)">
+      <div style="min-width:0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">FROM LISTING</div>
+        <div style="font-size:14px;font-weight:800;letter-spacing:-.015em;margin-top:3px">{{ sourceTitle }}</div>
+      </div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--color-neutral-700);flex:none">{{ sourceDomain }}</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="padding:30px 0 0">
+    <div style="padding:0 20px;display:flex;justify-content:space-between;align-items:baseline">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">CLOTHES IN RELATED COLORS</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700)">REAL LISTINGS</div>
+    </div>
+    <div class="sw-scroll" style="display:flex;gap:12px;overflow-x:auto;padding:14px 20px 0">
+      <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
+        <button onClick="{{ p.onTap }}" style="all:unset;cursor:pointer;flex:none;width:128px">
+          <div style="height:156px;background:{{ p.hex }}"></div>
+          <div style="padding-top:9px">
+            <div style="font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--color-accent-700)">{{ p.relation }}</div>
+            <div style="font-size:13px;font-weight:800;letter-spacing:-.015em;line-height:1.2;margin-top:4px">{{ p.item }}</div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:.03em;color:var(--color-neutral-700);margin-top:3px">{{ p.brand }} · {{ p.colorName }}</div>
+            <div style="font-size:13px;font-weight:800;margin-top:6px">{{ p.price }}</div>
+            <div style="font-size:8.5px;font-weight:700;letter-spacing:.12em;color:var(--color-neutral-700);margin-top:4px">{{ p.match }}</div>
+            <div style="font-size:8.5px;font-weight:800;letter-spacing:.14em;color:var(--color-text);margin-top:6px;text-decoration:underline;text-underline-offset:3px">VIEW LISTING ↗</div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ relatedSparse }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:10px 20px 0;font-size:11px;line-height:1.5;color:var(--color-neutral-700)">{{ relatedNote }}</div>
+    </sc-if>
+  </div>
+
+  <div style="padding:26px 20px 0;display:flex;flex-direction:column;gap:10px">
+    <button class="btn btn-primary btn-block" onClick="{{ toCombos }}" style="justify-content:flex-start;height:50px;font-size:13px;letter-spacing:.14em">BUILD COMBINATIONS</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-secondary" onClick="{{ save }}" style="flex:1;justify-content:flex-start;height:44px;font-size:11px;letter-spacing:.14em">{{ saveLabel }}</button>
+      <button class="btn btn-secondary" onClick="{{ retake }}" style="flex:1;justify-content:flex-start;height:44px;font-size:11px;letter-spacing:.14em">RE-SCAN</button>
+    </div>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCombos }}" hint-placeholder-val="{{ false }}">
+<div>
+  <div style="padding:2px 20px 0">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">FROM {{ nameUpper }}</div>
+    <div style="font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:6px">{{ harmonyTitle }}</div>
+  </div>
+
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;gap:4px">
+      <sc-for list="{{ harmonyTabs }}" as="h" hint-placeholder-count="4">
+        <button onClick="{{ h.onTap }}" style="all:unset;cursor:pointer;flex:1;text-align:center;padding:8px 2px;font-size:8.5px;font-weight:700;letter-spacing:.1em;background:{{ h.bg }};color:{{ h.fg }};border:1px solid {{ h.bd }}">{{ h.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding:16px 20px 0">
+    <div style="display:flex;gap:18px;border-bottom:1px solid var(--color-neutral-200)">
+      <sc-for list="{{ viewTabs }}" as="v" hint-placeholder-count="3">
+        <button onClick="{{ v.onTap }}" style="all:unset;cursor:pointer;padding:0 0 8px;font-size:9px;font-weight:700;letter-spacing:.14em;box-shadow:inset 0 -2px 0 0 {{ v.bar }};color:{{ v.fg }}">{{ v.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ isProportion }}" hint-placeholder-val="{{ true }}">
+  <div style="padding:20px 20px 0;display:flex;flex-direction:column;gap:6px">
+    <sc-for list="{{ combos }}" as="c" hint-placeholder-count="3">
+      <div style="display:flex;align-items:stretch;gap:14px;height:{{ c.h }}px">
+        <div style="width:112px;flex:none;background:{{ c.hex }}"></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">
+          <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ c.role }}</div>
+          <div style="font-size:19px;font-weight:800;letter-spacing:-.02em;margin-top:2px">{{ c.name }}</div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--color-neutral-700);margin-top:3px">{{ c.pctLabel }} of the outfit · {{ c.hex }}</div>
+          <sc-if value="{{ showTheory }}" hint-placeholder-val="{{ true }}">
+            <div style="font-size:8.5px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700);margin-top:6px">{{ c.theory }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isSpectrum }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:24px 20px 0">
+    <div style="position:relative;height:156px">
+      <div style="position:absolute;left:0;right:0;top:92px;height:26px;background:{{ spectrumGradient }}"></div>
+      <sc-for list="{{ markers }}" as="m" hint-placeholder-count="3">
+        <div style="position:absolute;top:0;height:130px;left:{{ m.x }}%;width:1px;background:var(--color-neutral-400)">
+          <div style="position:absolute;left:-16px;top:{{ m.top }}px;width:32px;height:32px;background:{{ m.hex }}"></div>
+          <div style="position:absolute;left:-20px;top:132px;width:40px;text-align:center;font-size:8.5px;font-weight:700;letter-spacing:.08em;color:var(--color-neutral-700)">{{ m.deg }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700);margin-top:12px">HUE AXIS · 0°–360° AT MEASURED CHROMA</div>
+    <div style="margin-top:6px">
+      <sc-for list="{{ combos }}" as="c" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-neutral-200)">
+          <div style="width:28px;height:28px;background:{{ c.hex }};flex:none"></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:800;letter-spacing:-.015em">{{ c.name }}</div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700);margin-top:2px">{{ c.theory }}</div>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--color-neutral-700)">{{ c.degLabel }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isGarment }}" hint-placeholder-val="{{ false }}">
+  <div style="padding:20px 20px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <sc-for list="{{ garments }}" as="g" hint-placeholder-count="4">
+        <div style="grid-column:span {{ g.span }}">
+          <div style="height:{{ g.h }}px;background:{{ g.hex }}"></div>
+          <div style="padding-top:8px">
+            <div style="font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ g.slot }}</div>
+            <div style="font-size:15px;font-weight:800;letter-spacing:-.02em;margin-top:2px">{{ g.name }}</div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:.08em;color:var(--color-neutral-700);margin-top:2px">{{ g.note }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="font-size:12px;line-height:1.6;color:var(--color-neutral-700);margin-top:18px">{{ garmentNote }}</div>
+  </div>
+  </sc-if>
+
+  <div style="padding:32px 20px 0">
+    <div style="border-top:2px solid var(--color-divider);padding-top:16px;font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">HOW TO WEAR IT</div>
+    <sc-for list="{{ advice }}" as="a" hint-placeholder-count="3">
+      <div style="padding:16px 0;border-bottom:1px solid var(--color-neutral-200)">
+        <div style="font-size:13px;font-weight:800;letter-spacing:-.015em;margin-bottom:4px">{{ a.title }}</div>
+        <div style="font-size:13px;line-height:1.6;color:var(--color-neutral-700)">{{ a.text }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="padding:28px 20px 0">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700);margin-bottom:12px">PAIRS WITH YOUR SCANS</div>
+    <div style="display:flex;gap:10px;overflow-x:auto" class="sw-scroll">
+      <sc-for list="{{ pairs }}" as="p" hint-placeholder-count="4">
+        <button onClick="{{ p.onTap }}" style="all:unset;cursor:pointer;flex:none;width:100px">
+          <div style="height:72px;background:{{ p.hex }}"></div>
+          <div style="padding-top:7px">
+            <div style="font-size:11px;font-weight:800;letter-spacing:-.01em">{{ p.name }}</div>
+            <div style="font-size:8.5px;font-weight:700;letter-spacing:.12em;color:{{ p.matchColor }};margin-top:2px">{{ p.match }}</div>
+          </div>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="padding:26px 20px 0">
+    <button class="btn btn-primary btn-block" onClick="{{ toShop }}" style="justify-content:flex-start;height:48px;font-size:13px;letter-spacing:.14em">SHOP THIS PALETTE</button>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 0">
+  <div style="font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05">{{ libCount }} scans</div>
+  <div style="font-size:13px;line-height:1.6;color:var(--color-neutral-700);margin-top:8px;margin-bottom:22px;max-width:32ch">Measured colors, kept exact. Tap one to rebuild its palette.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 12px">
+    <sc-for list="{{ saved }}" as="s" hint-placeholder-count="6">
+      <button onClick="{{ s.onTap }}" style="all:unset;cursor:pointer;display:block">
+        <div style="height:100px;background:{{ s.hex }}"></div>
+        <div style="padding-top:8px">
+          <div style="font-size:14px;font-weight:800;letter-spacing:-.02em">{{ s.name }}</div>
+          <div style="font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--color-neutral-700);margin-top:2px">{{ s.item }}</div>
+          <div style="font-size:8.5px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700);margin-top:5px">{{ s.date }} · {{ s.hex }}</div>
+        </div>
+      </button>
+    </sc-for>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isShop }}" hint-placeholder-val="{{ false }}">
+<div style="padding:2px 20px 0">
+  <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">MATCHED TO {{ harmonyUpper }}</div>
+  <div style="font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:6px">In this palette</div>
+  <div style="display:flex;gap:4px;margin:18px 0 4px">
+    <sc-for list="{{ combos }}" as="c" hint-placeholder-count="3">
+      <div style="flex:1;height:6px;background:{{ c.hex }}"></div>
+    </sc-for>
+  </div>
+  <sc-for list="{{ products }}" as="p" hint-placeholder-count="5">
+    <div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--color-neutral-200);align-items:flex-start">
+      <div style="width:62px;height:78px;flex:none;background:{{ p.hex }}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ p.brand }}</div>
+        <div style="font-size:16px;font-weight:800;letter-spacing:-.025em;line-height:1.2;margin-top:4px">{{ p.name }}</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--color-neutral-700);margin-top:4px">{{ p.colorName }} · {{ p.role }}</div>
+        <div style="font-size:14px;font-weight:800;margin-top:8px">{{ p.price }}</div>
+      </div>
+    </div>
+  </sc-for>
+  <div style="height:36px"></div>
+</div>
+</sc-if>
+
+</div>
+
+<div style="flex:none;border-top:1px solid var(--color-neutral-300);display:flex;padding:0 8px 26px;background:var(--color-neutral-100)">
+  <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+    <button onClick="{{ t.onTap }}" style="all:unset;cursor:pointer;flex:1;padding:14px 0 6px 12px;box-shadow:inset 0 2px 0 0 {{ t.bar }};color:{{ t.fg }};font-size:9.5px;font-weight:700;letter-spacing:.14em">{{ t.label }}</button>
+  </sc-for>
+</div>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:500,&quot;height&quot;:980},&quot;defaultHarmony&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;complementary&quot;,&quot;analogous&quot;,&quot;triadic&quot;,&quot;split&quot;],&quot;default&quot;:&quot;complementary&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Combinations&quot;},&quot;defaultView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;proportion&quot;,&quot;spectrum&quot;,&quot;garment&quot;],&quot;default&quot;:&quot;proportion&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Combinations&quot;},&quot;showTheory&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Combinations&quot;},&quot;cameraEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Capture&quot;}}">
+class Component extends DCLogic {
+  state = { screen:'scan', hex:null, shot:'', harmony:null, view:null, cam:'idle', flash:0, saved:null, savedFlag:false, linkUrl:'', linkBusy:false, linkErr:'', source:null };
+
+  SAMPLES = ['https://www.cos.com/en/women/coats/wool-wrap-coat-camel','https://www.arket.com/en/men/shirts/linen-overshirt-sage','https://www.uniqlo.com/us/en/products/merino-crew-sweater-navy'];
+  LISTING_PALETTE = ['#8a5a3c','#3f5566','#b9a07a','#5b2f35','#2f4a3a','#c7b9a3','#6d5a7a','#a44a32'];
+  CATALOG = [
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Forest Green',hex:'#2f4a36',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-forest-green'},
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Heathered Toffee',hex:'#9a6e4c',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-heathered-toffee'},
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Navy',hex:'#232c42',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-navy'},
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Black',hex:'#1d1d1f',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-black'},
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Toast',hex:'#c9a882',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-toast'},
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Wine',hex:'#5e2330',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-wine'},
+    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Canvas',hex:'#d8ccb4',price:'$228',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-canvas'},
+    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Bone / Black',hex:'#e6e0d2',price:'',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-new-bone-black'},
+    {brand:'EVERLANE',item:'The Cashmere Crew (Men)',color:'Navy',hex:'#26304a',price:'',url:'https://www.everlane.com/products/mens-cashmere-crew-tnavy'},
+    {brand:'UNIQLO',item:'Extra Fine Merino Crew Neck Sweater',color:'38 Dark Brown',hex:'#4a3528',price:'$39.90',url:'https://www.uniqlo.com/us/en/products/E429066-000/01'},
+    {brand:'J.CREW',item:'Baird McNutt Irish Linen Shirt',color:'Blue',hex:'#8fb0cf',price:'$118',url:'https://www.jcrew.com/plp/mens/categories/clothing/shirts/linen?l_color=root-blue'},
+    {brand:'J.CREW',item:'Baird McNutt Irish Linen Shirt',color:'White',hex:'#f1efe9',price:'$118',url:'https://www.jcrew.com/plp/mens/categories/clothing/shirts/linen?sub-categories=men-shirts-linen&l_color=root-white'},
+    {brand:'EVERLANE',item:'The Classic Crew in Cashmere',color:'Rusted Red',hex:'#8e3a2c',price:'',url:'https://www.everlane.com/products/womens-cashmere-classic-crew-sweater-rusted-red'},
+    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Rust',hex:'#a4502e',price:'',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-rust'},
+    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Berry Red',hex:'#9c2438',price:'',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-berry-red'},
+    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Cabernet / Coffee Bean',hex:'#5a2a2c',price:'',url:'https://www.everlane.com/products/f-swtr-ecm-cr-ls-brwnstrp'},
+    {brand:'J.CREW',item:'Cashmere Sweaters (Women)',color:'Yellow',hex:'#e2c25a',price:'$128–$148',url:'https://www.jcrew.com/plp/womens/features/the-cashmere-shop?l_color=root-yellow'},
+    {brand:'J.CREW',item:'Cashmere Sweaters (Women)',color:'Purple',hex:'#7a5a9a',price:'',url:'https://www.jcrew.com/plp/womens/features/the-cashmere-shop?l_color=root-purple'}
+  ];
+
+  onLink = (e)=>this.setState({linkUrl:e.target.value, linkErr:''});
+  onLinkKey = (e)=>{ if(e.key==='Enter') this.importLink(); };
+  importLink = (raw)=>{
+    if(this.state.linkBusy) return;
+    let u=(typeof raw==='string'?raw:this.state.linkUrl||'').trim();
+    if(!u){ this.setState({linkErr:'Paste a product link first.'}); return; }
+    if(!/^https?:\/\//i.test(u)) u='https://'+u;
+    let url; try{ url=new URL(u); }catch(e){ url=null; }
+    if(!url || url.hostname.indexOf('.')<0){ this.setState({linkErr:'That doesn’t look like a shop link.'}); return; }
+    this.setState({linkUrl:u, linkBusy:true, linkErr:''});
+    clearTimeout(this._l);
+    this._l=setTimeout(()=>{
+      const segs=url.pathname.split('/').filter(Boolean);
+      const words=(segs[segs.length-1]||'').toLowerCase().replace(/\.[a-z]+$/,'').split(/[-_+]/).filter(w=>w && !/^\d+$/.test(w));
+      let hex=null;
+      for(const w of words){ const m=this.NAMES.find(n=>n[1].toLowerCase()===w); if(m){ hex=m[0]; break; } }
+      const extra={camel:'#b8926a',beige:'#d6c4a8',black:'#1f1e1e',white:'#f2f0ec',grey:'#8a8a8c',gray:'#8a8a8c',brown:'#5e4131',green:'#3c5a3e',blue:'#34507a',red:'#a8302a',pink:'#d8a0a8',khaki:'#8c8460',burgundy:'#5e1f2a',ecru:'#e8e0cc',rust:'#a4502e'};
+      if(!hex) for(const w of words){ if(extra[w]){ hex=extra[w]; break; } }
+      if(!hex){ let hs=0; for(const ch of u) hs=(hs*31+ch.charCodeAt(0))>>>0; hex=this.LISTING_PALETTE[hs%this.LISTING_PALETTE.length]; }
+      const colorWords=new Set(this.NAMES.map(n=>n[1].toLowerCase()).concat(Object.keys(extra)));
+      const tw=words.filter(w=>!colorWords.has(w));
+      const title=tw.length?tw.map(w=>w[0].toUpperCase()+w.slice(1)).join(' '):'Listing item';
+      this.setState({linkBusy:false});
+      this.commit(hex,'',{title, domain:url.hostname.replace(/^www\./,'')});
+    },900);
+  };
+
+  NAMES = [['#c96f4a','Terracotta'],['#9c3b28','Brick'],['#4a1e22','Oxblood'],['#d2222c','Cherry'],['#f0745e','Coral'],['#e8bfb4','Blush'],['#e8a56a','Apricot'],['#d2a33a','Mustard'],['#b8862c','Ochre'],['#f0dfa0','Butter'],['#6f7048','Olive'],['#a8b49a','Sage'],['#29452f','Forest'],['#2f7a55','Emerald'],['#b8dcc8','Mint'],['#2b6f72','Teal'],['#1f4a55','Petrol'],['#9cc2dc','Sky'],['#2b46a0','Cobalt'],['#1e2a4a','Navy'],['#4a6c96','Denim'],['#b8a8d2','Lilac'],['#6a4a96','Violet'],['#5a2a4a','Plum'],['#b82a6a','Magenta'],['#d4869c','Rose'],['#e0508c','Fuchsia'],['#b8926a','Camel'],['#c8a882','Tan'],['#4a3428','Chocolate'],['#9a8c80','Taupe'],['#f0e8d8','Cream'],['#ded6c8','Bone'],['#3a3a3c','Charcoal'],['#6e7378','Slate'],['#c0c4c6','Silver'],['#1a1a1a','Ink'],['#fafafa','Chalk']];
+
+  FALLBACKS = [['#8c3b2e','WOOL'],['#3f5a6e','DENIM'],['#c9b07a','LINEN'],['#2c3a2b','GABARDINE'],['#d9d2c6','POPLIN'],['#6b4a7a','VELVET']];
+
+  SEED = [
+    {hex:'#7a2f24',item:'Wool overcoat',date:'12 SEP'},
+    {hex:'#2e4257',item:'Selvedge denim',date:'09 SEP'},
+    {hex:'#cfc3a8',item:'Linen shirt',date:'04 SEP'},
+    {hex:'#3d4a35',item:'Field jacket',date:'28 AUG'},
+    {hex:'#d9a24b',item:'Silk scarf',date:'21 AUG'},
+    {hex:'#26272b',item:'Knit trouser',date:'14 AUG'}
+  ];
+
+  clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
+  hexToRgb(h){ h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+  rgbToHex(r,g,b){ const c=n=>Math.round(this.clamp(n,0,255)).toString(16).padStart(2,'0'); return '#'+c(r)+c(g)+c(b); }
+  rgbToHsl(r,g,b){ r/=255;g/=255;b/=255; const mx=Math.max(r,g,b),mn=Math.min(r,g,b); let h=0,s=0; const l=(mx+mn)/2; const d=mx-mn;
+    if(d){ s=d/(1-Math.abs(2*l-1)); if(mx===r)h=60*(((g-b)/d)%6); else if(mx===g)h=60*((b-r)/d+2); else h=60*((r-g)/d+4); }
+    return [(h+360)%360, s*100, l*100]; }
+  hslToHex(h,s,l){ h=((h%360)+360)%360; s=this.clamp(s,0,100)/100; l=this.clamp(l,0,100)/100;
+    const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs(((h/60)%2)-1)), m=l-c/2; let r=0,g=0,b=0;
+    if(h<60){r=c;g=x;} else if(h<120){r=x;g=c;} else if(h<180){g=c;b=x;} else if(h<240){g=x;b=c;} else if(h<300){r=x;b=c;} else {r=c;b=x;}
+    return this.rgbToHex((r+m)*255,(g+m)*255,(b+m)*255); }
+  rgbToLab(r,g,b){ const f=v=>{v/=255; return v>0.04045?Math.pow((v+0.055)/1.055,2.4):v/12.92;};
+    const R=f(r),G=f(g),B=f(b);
+    let X=(R*0.4124+G*0.3576+B*0.1805)/0.95047, Y=R*0.2126+G*0.7152+B*0.0722, Z=(R*0.0193+G*0.1192+B*0.9505)/1.08883;
+    const k=t=>t>0.008856?Math.cbrt(t):(7.787*t+16/116);
+    X=k(X);Y=k(Y);Z=k(Z);
+    return [116*Y-16, 500*(X-Y), 200*(Y-Z)]; }
+  lum(hex){ const [r,g,b]=this.hexToRgb(hex); const f=v=>{v/=255;return v>0.03928?Math.pow((v+0.055)/1.055,2.4):v/12.92;}; return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b); }
+  on(hex){ return this.lum(hex)>0.42 ? '#201e1d' : '#f8f4f4'; }
+  nameOf(hex){ const [r,g,b]=this.hexToRgb(hex); const L=this.rgbToLab(r,g,b); let best=this.NAMES[0],bd=1e9;
+    for(const n of this.NAMES){ const [r2,g2,b2]=this.hexToRgb(n[0]); const M=this.rgbToLab(r2,g2,b2);
+      const d=(L[0]-M[0])*(L[0]-M[0])*1.6+(L[1]-M[1])*(L[1]-M[1])+(L[2]-M[2])*(L[2]-M[2]);
+      if(d<bd){bd=d;best=n;} }
+    return best[1]; }
+  familyOf(h,s){ if(s<9) return 'NEUTRAL';
+    if(h<14||h>=345) return 'RED';
+    if(h<38) return 'RUST / ORANGE';
+    if(h<60) return 'GOLD';
+    if(h<95) return 'OLIVE / CHARTREUSE';
+    if(h<155) return 'GREEN';
+    if(h<195) return 'TEAL';
+    if(h<250) return 'BLUE';
+    if(h<290) return 'VIOLET';
+    return 'MAGENTA / PINK'; }
+
+  setVideo = (el)=>{ this.videoEl = el; if(el && !this.stream && this.state.cam!=='fail') this.startCam(); };
+
+  startCam(){
+    if(this.props.cameraEnabled === false){ this.setState({cam:'fail'}); return; }
+    const v=this.videoEl;
+    if(!v || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ this.setState({cam:'fail'}); return; }
+    navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})
+      .then(s=>{ this.stream=s; v.srcObject=s; v.muted=true; v.setAttribute('playsinline',''); v.setAttribute('autoplay',''); const p=v.play(); if(p&&p.catch)p.catch(()=>{}); this.setState({cam:'live'}); })
+      .catch(()=>this.setState({cam:'fail'}));
+  }
+  relatedFor(hex,combos){
+    const [r,g,b]=this.hexToRgb(hex); const [h,s,l]=this.rgbToHsl(r,g,b);
+    const defs=[
+      ['LIGHTER TONE', this.hslToHex(h,s*0.8,this.clamp(l+18,20,90))],
+      ['DEEPER TONE', this.hslToHex(h,s,this.clamp(l-16,10,80))],
+      ['NEIGHBOUR +24°', this.hslToHex(h+24,s*0.9,l)],
+      ['NEIGHBOUR −24°', this.hslToHex(h-24,s*0.9,l)],
+      ['COUNTERPOINT', combos[1].hex],
+      ['NEUTRAL BASE', this.hslToHex(h,8,l>52?20:86)]
+    ];
+    const lab=(x)=>{ const c=this.hexToRgb(x); return this.rgbToLab(c[0],c[1],c[2]); };
+    const used=new Set(); const out=[];
+    for(const d of defs){
+      const t=lab(d[1]); let best=null,bd=1e9;
+      for(const it of this.CATALOG){ if(used.has(it.url)) continue; const m=lab(it.hex);
+        const de=Math.sqrt((t[0]-m[0])**2+(t[1]-m[1])**2+(t[2]-m[2])**2); if(de<bd){bd=de;best=it;} }
+      if(!best || bd>30) continue; used.add(best.url);
+      out.push({relation:d[0],hex:best.hex,colorName:best.color,brand:best.brand,item:best.item,
+        price:best.price||'PRICE ON SITE', match:'ΔE '+Math.round(bd)+(bd<12?' · CLOSE':bd<25?' · NEAR':' · LOOSE'),
+        onTap:()=>window.open(best.url,'_blank','noopener')});
+    }
+    return out;
+  }
+  retryCam = ()=>{ if(this.stream){ this.stream.getTracks().forEach(t=>t.stop()); this.stream=null; } this.setState({cam:'idle'},()=>this.startCam()); };
+  componentWillUnmount(){ clearTimeout(this._l); if(this.stream) this.stream.getTracks().forEach(t=>t.stop()); }
+
+  capture = ()=>{
+    const v=this.videoEl;
+    if(!v || !v.videoWidth){ this.setState({cam:'fail'}); return; }
+    const c=document.createElement('canvas'); c.width=v.videoWidth; c.height=v.videoHeight;
+    const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,c.width,c.height);
+    const s=Math.max(8,Math.round(Math.min(c.width,c.height)*0.18));
+    let r=0,g=0,b=0,n=0;
+    try{
+      const d=ctx.getImageData(Math.round((c.width-s)/2),Math.round((c.height-s)/2),s,s).data;
+      for(let i=0;i<d.length;i+=4){ r+=d[i];g+=d[i+1];b+=d[i+2];n++; }
+    }catch(e){ this.setState({cam:'fail'}); return; }
+    const hex=this.rgbToHex(r/n,g/n,b/n);
+    let shot=''; try{ shot=c.toDataURL('image/jpeg',0.7); }catch(e){}
+    this.commit(hex,shot);
+  };
+
+  commit(hex,shot,source){
+    this.setState({hex,shot:shot||'',source:source||null,screen:'result',flash:1,savedFlag:false});
+    clearTimeout(this._f); this._f=setTimeout(()=>this.setState({flash:0}),260);
+  }
+
+  go = (screen)=>()=>this.setState({screen});
+  setH = (h)=>()=>this.setState({harmony:h});
+  setV = (v)=>()=>this.setState({view:v});
+
+  library(){ return this.state.saved || this.SEED.map(s=>Object.assign({},s,{name:this.nameOf(s.hex)})); }
+
+  save = ()=>{
+    if(this.state.savedFlag) return;
+    const lib=this.library().slice();
+    lib.unshift({hex:this.state.hex,name:this.nameOf(this.state.hex),item:'New scan',date:'TODAY'});
+    this.setState({saved:lib,savedFlag:true});
+  };
+
+  harmonySpec(){
+    const H=this.harmony();
+    if(H==='analogous') return [{d:-32,pct:30,role:'Neighbour',theory:'ANALOGOUS −32°'},{d:0,pct:55,role:'Anchor',theory:'MEASURED HUE'},{d:32,pct:15,role:'Neighbour',theory:'ANALOGOUS +32°'}];
+    if(H==='triadic') return [{d:0,pct:60,role:'Anchor',theory:'MEASURED HUE'},{d:120,pct:25,role:'Second',theory:'TRIAD +120°'},{d:240,pct:15,role:'Accent',theory:'TRIAD +240°'}];
+    if(H==='split') return [{d:0,pct:60,role:'Anchor',theory:'MEASURED HUE'},{d:150,pct:25,role:'Counterpoint',theory:'SPLIT +150°'},{d:210,pct:15,role:'Counterpoint',theory:'SPLIT +210°'}];
+    return [{d:0,pct:60,role:'Anchor',theory:'MEASURED HUE'},{d:180,pct:30,role:'Counterpoint',theory:'COMPLEMENT +180°'},{d:null,pct:10,role:'Neutral ground',theory:'DESATURATED TO 8% CHROMA'}];
+  }
+
+  harmony(){ return this.state.harmony || this.props.defaultHarmony || 'complementary'; }
+  view(){ return this.state.view || this.props.defaultView || 'proportion'; }
+
+  buildCombos(hex){
+    const [r,g,b]=this.hexToRgb(hex); const [h,s,l]=this.rgbToHsl(r,g,b);
+    return this.harmonySpec().map(spec=>{
+      let hx, deg, isNeutral=false;
+      if(spec.d===null){ hx=this.hslToHex(h,8,l>52?18:88); deg=Math.round(h); isNeutral=true; }
+      else { const nh=(h+spec.d+360)%360; deg=Math.round(nh);
+        const ns=spec.d===0?s:this.clamp(s*(Math.abs(spec.d)>90?0.78:0.9),6,84);
+        const nl=spec.d===0?l:this.clamp(l+(Math.abs(spec.d)>90?(l>52?-8:10):5),12,90);
+        hx=this.hslToHex(nh,ns,nl); }
+      return {hex:hx,name:this.nameOf(hx),role:spec.role,theory:spec.theory,pct:spec.pct,isNeutral,
+        pctLabel:spec.pct+'%',h:Math.round(spec.pct*0.85)+58,on:this.on(hx),deg:deg,degLabel:deg+'°',x:deg/360*100};
+    });
+  }
+
+  adviceFor(combos,hex){
+    const [r,g,b]=this.hexToRgb(hex); const [h,s,l]=this.rgbToHsl(r,g,b);
+    const lab=this.rgbToLab(r,g,b);
+    const warm = lab[2]>8, cool = lab[2]<-4;
+    const neutral = warm? 'bone, cream and camel' : cool? 'stone grey, chalk and charcoal' : 'taupe and off-white';
+    const H=this.harmony();
+    const anchor=combos.find(c=>c.role==='Anchor')||combos[0];
+    const second=combos[1]||combos[0];
+    const third=combos[2]||combos[0];
+    const rule = H==='analogous'
+      ? 'Three hues sitting within 32° of each other. Low contrast, high cohesion — the outfit reads as one considered color rather than a set of choices.'
+      : H==='triadic'
+      ? 'Three hues spaced evenly around the wheel. Maximum variety at equal strength, so the proportions do the disciplining.'
+      : H==='split'
+      ? 'The two hues flanking the direct opposite. You get the tension of a complement without the head-on collision.'
+      : 'The hue directly opposite on the wheel. The sharpest available contrast — which is why it belongs in the smallest quantity.';
+    return [
+      {title:'The rule', text:rule},
+      {title:'How to wear it', text:'Let '+anchor.name.toLowerCase()+' carry the look — coat, suit or dress. Bring '+second.name.toLowerCase()+' in at a third of the surface: knitwear, a shirt, the trouser. Keep '+third.name.toLowerCase()+' to one object — bag, scarf, shoe. Ground anything left over in '+neutral+'.'},
+      {title:'Where it goes wrong', text: (s>58?'This is a saturated color; two of these at equal weight will fight. ':'') + (l<30?'At this depth the palette needs a light neutral near the face or it goes heavy. ':'') + 'Never split the surface 50/50 — the 60/30/10 ratio is what keeps it deliberate.'}
+    ];
+  }
+
+  renderVals(){
+    const screen=this.state.screen;
+    const hex=this.state.hex||'#8c3b2e';
+    const [r,g,b]=this.hexToRgb(hex);
+    const [h,s,l]=this.rgbToHsl(r,g,b);
+    const lab=this.rgbToLab(r,g,b);
+    const combos=this.buildCombos(hex);
+    const view=this.view(); const H=this.harmony();
+    const lib=this.library().map(item=>Object.assign({},item,{on:this.on(item.hex),onTap:()=>this.setState({screen:'result',hex:item.hex,shot:'',savedFlag:true})}));
+    const undertone = lab[2]>8?'warm undertone':lab[2]<-4?'cool undertone':'neutral undertone';
+    const valueWord = l<26?'deep':l<58?'mid-value':'light';
+    const chromaWord = s<14?'near-neutral':s<44?'muted':'vivid';
+    const hTitle = H==='analogous'?'Analogous':H==='triadic'?'Triadic':H==='split'?'Split-complementary':'Complementary';
+    const tabDef=[['scan','SCAN'],['combos','COMBOS'],['library','LIBRARY'],['shop','SHOP']];
+    const stops=[]; for(let i=0;i<=12;i++) stops.push(this.hslToHex(i*30, this.clamp(s,22,80), this.clamp(l,36,68)));
+    const anchor=combos.find(c=>c.role==='Anchor')||combos[0];
+    const second=combos[1]||combos[0]; const third=combos[2]||combos[0];
+    const botHex=this.hslToHex(h,7,l>52?20:86);
+    const gar=[
+      {slot:'OUTER LAYER',hex:anchor.hex,name:anchor.name,note:'COAT · BLAZER · DRESS',span:2,h:104},
+      {slot:'TOP',hex:second.hex,name:second.name,note:'SHIRT · KNIT',span:1,h:88},
+      {slot:'BOTTOM',hex:botHex,name:this.nameOf(botHex),note:'TROUSER · SKIRT',span:1,h:88},
+      {slot:'ACCENT',hex:third.hex,name:third.name,note:'BAG · SCARF · SHOE',span:2,h:56}
+    ].map(x=>Object.assign(x,{on:this.on(x.hex)}));
+    const prodNames=[['ROHE','Belted wool overcoat','$690'],['STUDIO NICHOLSON','Wide-leg twill trouser','$395'],['LEMAIRE','Silk scarf, hand-rolled','$210'],['ARKET','Merino crew knit','$119'],['TOTEME','Leather tote','$540']];
+    const products=prodNames.map((p,i)=>{ const c=combos[i%combos.length];
+      return {brand:p[0],name:p[1],price:p[2],hex:c.hex,colorName:c.name,role:c.role.toUpperCase(),on:c.on}; });
+    const seen={};
+    const markers=combos.map(c=>{ const k=Math.round(c.deg); const n=seen[k]||0; seen[k]=n+1;
+      return {x:this.clamp(c.x,7,93).toFixed(1), hex:c.hex, deg:n?'':c.degLabel, top:6+n*40}; });
+
+    return {
+      screenLabel: screen==='scan'?'CAPTURE':screen==='result'?'MEASUREMENT':screen==='combos'?'COMBINATIONS':screen==='library'?'LIBRARY':'SHOP',
+      isScan:screen==='scan', isResult:screen==='result', isCombos:screen==='combos', isLibrary:screen==='library', isShop:screen==='shop',
+      camLabel: this.state.cam==='live'?'CAMERA LIVE':this.state.cam==='fail'?'CAMERA UNAVAILABLE':'REQUESTING CAMERA',
+      camDot: this.state.cam==='live'?'#8fd6a8':this.state.cam==='fail'?'var(--color-accent-400)':'#ffffff',
+      camFailed: this.state.cam==='fail',
+      flashOp: this.state.flash,
+      setVideo:this.setVideo, capture:this.capture, retryCam:this.retryCam,
+      fallbacks:this.FALLBACKS.map(f=>({hex:f[0],label:f[1],onTap:()=>this.commit(f[0],'')})),
+      hex, on:this.on(hex), name:this.nameOf(hex), nameUpper:this.nameOf(hex).toUpperCase(), family:this.familyOf(h,s),
+      setShot:(el)=>{ if(!el) return; const lbl=this.state.source?'LISTING':'NO PHOTO'; const ph='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="70" height="88"><rect width="70" height="88" fill="#d7d3d3"/><text x="35" y="47" font-family="Archivo,sans-serif" font-size="9" font-weight="800" letter-spacing="0.8" fill="#444141" text-anchor="middle">'+lbl+'</text></svg>'); el.src=this.state.shot||ph; },
+      linkUrl:this.state.linkUrl, onLink:this.onLink, onLinkKey:this.onLinkKey, importLink:()=>this.importLink(),
+      linkBtn:this.state.linkBusy?'READING…':'ADD', linkErr:this.state.linkErr,
+      sampleLinks:this.SAMPLES.map(u=>{ const p=new URL(u); const slug=p.pathname.split('/').filter(Boolean).pop();
+        const cw=slug.split('-').pop(); const m=this.NAMES.find(n=>n[1].toLowerCase()===cw);
+        return {label:p.hostname.replace(/^www\./,'')+' / '+slug, hex:m?m[0]:({camel:'#b8926a'})[cw]||'#999', onTap:()=>this.importLink(u)}; }),
+      hasSource:!!this.state.source, sourceTitle:this.state.source?this.state.source.title:'', sourceDomain:this.state.source?this.state.source.domain.toUpperCase():'',
+      ...(()=>{ const rel=this.relatedFor(hex,combos); return {related:rel, relatedSparse:rel.length<6,
+        relatedNote: rel.length? (6-rel.length)+' of 6 color slots had no listing within ΔE 30, so they are hidden.' : 'No listings within ΔE 30 of this color yet.'}; })(),
+      undertoneLine: 'A '+valueWord+', '+chromaWord+' tone with a '+undertone+'.',
+      readouts:[
+        {k:'HEX',v:hex.toUpperCase()},
+        {k:'RGB',v:Math.round(r)+' · '+Math.round(g)+' · '+Math.round(b)},
+        {k:'CIE L*A*B*',v:lab.map(n=>n.toFixed(1)).join('  ')},
+        {k:'HUE / SAT / LIGHT',v:Math.round(h)+'°  '+Math.round(s)+'%  '+Math.round(l)+'%'}
+      ],
+      saveLabel:this.state.savedFlag?'SAVED':'SAVE',
+      save:this.save, retake:this.go('scan'), toCombos:this.go('combos'), toShop:this.go('shop'),
+      combos, harmonyTitle:hTitle, harmonyUpper:hTitle.toUpperCase(), showTheory:this.props.showTheory !== false,
+      harmonyTabs:[['complementary','COMPLEMENT'],['analogous','ANALOGOUS'],['triadic','TRIADIC'],['split','SPLIT']].map(t=>({
+        label:t[1], onTap:this.setH(t[0]),
+        bg: H===t[0]?'var(--color-accent)':'transparent',
+        bd: H===t[0]?'var(--color-accent)':'var(--color-neutral-300)',
+        fg: H===t[0]?'#f8f4f4':'var(--color-neutral-700)'})),
+      viewTabs:[['proportion','PROPORTION'],['spectrum','HUE AXIS'],['garment','GARMENT']].map(t=>({
+        label:t[1], onTap:this.setV(t[0]),
+        bar: view===t[0]?'var(--color-accent)':'transparent', fg: view===t[0]?'var(--color-text)':'var(--color-neutral-800)'})),
+      isProportion:view==='proportion', isSpectrum:view==='spectrum', isGarment:view==='garment',
+      spectrumGradient:'linear-gradient(90deg,'+stops.join(',')+')',
+      markers,
+      garments:gar,
+      garmentNote:'A block plan, not a rendering — what matters is how much surface each color takes once it is on a body.',
+      advice:this.adviceFor(combos,hex),
+      pairs:lib.slice(0,6).map(item=>{
+        const [r2,g2,b2]=this.hexToRgb(item.hex); const hh=this.rgbToHsl(r2,g2,b2)[0];
+        let d=Math.abs(hh-combos[1].deg); if(d>180)d=360-d;
+        const good=d<26;
+        return Object.assign({},item,{match:good?'STRONG MATCH':d<70?'WORKS':'CLASHES',matchColor:good?'var(--color-accent-700)':'var(--color-neutral-800)'});
+      }),
+      libCount:lib.length, saved:lib, products,
+      tabs:tabDef.map(t=>({label:t[1],onTap:this.go(t[0]),
+        bar: screen===t[0]?'var(--color-accent)':'transparent',
+        fg: screen===t[0]?'var(--color-text)':'var(--color-neutral-800)'}))
+    };
+  }
+}
+</script>
+</body>
+</html>
