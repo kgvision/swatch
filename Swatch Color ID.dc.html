@@ -52,6 +52,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
       <div style="width:6px;height:6px;background:{{ camDot }};animation:swpulse 1.8s infinite"></div>
       <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:#fff">{{ camLabel }}</div>
     </div>
+    <button class="btn btn-secondary" onClick="{{ retryCam }}" style="position:absolute;right:12px;bottom:12px;height:34px;padding:0 12px;font-size:9px;letter-spacing:.14em;justify-content:flex-start;background:var(--color-bg)">RETRY CAMERA</button>
     <div style="position:absolute;inset:0;background:#fff;pointer-events:none;transition:opacity .28s;opacity:{{ flashOp }}"></div>
   </div>
 
@@ -92,7 +93,6 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
   <div style="padding:28px 20px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
       <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">NO CAMERA — TAP A SAMPLE</div>
-      <button class="btn btn-ghost" onClick="{{ retryCam }}" style="height:32px;padding:0 10px;font-size:9px;letter-spacing:.14em;justify-content:flex-start">RETRY CAMERA</button>
     </div>
     <div style="font-size:11px;line-height:1.5;color:var(--color-neutral-700);margin-top:4px">If access was blocked, allow the camera in your browser's site settings first.</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
@@ -117,6 +117,7 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
       <img ref="{{ setShot }}" alt="Capture" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08)">
     </div>
     <div style="position:absolute;left:20px;bottom:18px;color:{{ on }};font-size:10px;font-weight:700;letter-spacing:.16em">{{ hex }}</div>
+    <button class="btn btn-secondary" onClick="{{ retryFromResult }}" style="position:absolute;left:20px;top:16px;height:34px;padding:0 12px;font-size:9px;letter-spacing:.14em;justify-content:flex-start;background:var(--color-bg)">RETRY CAMERA</button>
   </div>
 
   <div style="padding:24px 20px 0">
@@ -154,7 +155,12 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
     <div class="sw-scroll" style="display:flex;gap:12px;overflow-x:auto;padding:14px 20px 0">
       <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
         <button onClick="{{ p.onTap }}" style="all:unset;cursor:pointer;flex:none;width:128px">
-          <div style="height:156px;background:{{ p.hex }}"></div>
+          <div style="height:156px;background:{{ p.hex }};position:relative;overflow:hidden">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
+              <img src="{{ p.img }}" alt="{{ p.item }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+            </sc-if>
+            <div style="position:absolute;right:6px;bottom:6px;width:14px;height:14px;background:{{ p.hex }};box-shadow:0 0 0 2px var(--color-bg)"></div>
+          </div>
           <div style="padding-top:9px">
             <div style="font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--color-accent-700)">{{ p.relation }}</div>
             <div style="font-size:13px;font-weight:800;letter-spacing:-.015em;line-height:1.2;margin-top:4px">{{ p.item }}</div>
@@ -329,17 +335,55 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
       <div style="flex:1;height:6px;background:{{ c.hex }}"></div>
     </sc-for>
   </div>
-  <sc-for list="{{ products }}" as="p" hint-placeholder-count="5">
-    <div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--color-neutral-200);align-items:flex-start">
-      <div style="width:62px;height:78px;flex:none;background:{{ p.hex }}"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ p.brand }}</div>
-        <div style="font-size:16px;font-weight:800;letter-spacing:-.025em;line-height:1.2;margin-top:4px">{{ p.name }}</div>
-        <div style="font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--color-neutral-700);margin-top:4px">{{ p.colorName }} · {{ p.role }}</div>
-        <div style="font-size:14px;font-weight:800;margin-top:8px">{{ p.price }}</div>
+  <div style="display:flex;flex-direction:column;gap:12px;padding:14px 0 14px;border-bottom:2px solid var(--color-divider)">
+    <button onClick="{{ toggleFilters }}" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+      <span style="font-size:10px;font-weight:800;letter-spacing:.16em">{{ filterToggleLabel }}</span>
+      <span style="font-size:16px;font-weight:700;line-height:1">{{ filterIcon }}</span>
+    </button>
+    <sc-if value="{{ filtersOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;gap:12px">
+    <sc-for list="{{ filterGroups }}" as="g" hint-placeholder-count="4">
+      <div>
+        <div style="font-size:8.5px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700);margin-bottom:6px">{{ g.label }}</div>
+        <div class="sw-scroll" style="display:flex;gap:6px;overflow-x:auto">
+          <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="4">
+            <button onClick="{{ o.onTap }}" style="all:unset;cursor:pointer;flex:none;padding:7px 10px;font-size:9px;font-weight:700;letter-spacing:.12em;background:{{ o.bg }};color:{{ o.fg }};border:1px solid {{ o.bd }}">{{ o.label }}</button>
+          </sc-for>
+        </div>
       </div>
+    </sc-for>
     </div>
+    </sc-if>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.04em">{{ resultCount }}</div>
+      <sc-if value="{{ anyFilter }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ clearFilters }}" style="all:unset;cursor:pointer;font-size:9px;font-weight:800;letter-spacing:.14em;text-decoration:underline;text-underline-offset:3px">CLEAR FILTERS</button>
+      </sc-if>
+    </div>
+  </div>
+  <sc-for list="{{ products }}" as="p" hint-placeholder-count="5">
+    <a href="{{ p.url }}" target="_blank" rel="noopener" style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--color-neutral-200);align-items:flex-start;color:var(--color-text);text-decoration:none">
+      <div style="width:84px;height:106px;flex:none;background:{{ p.hex }};position:relative;overflow:hidden">
+        <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}">
+          <img src="{{ p.img }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+        </sc-if>
+        <div style="position:absolute;right:5px;bottom:5px;width:12px;height:12px;background:{{ p.hex }};box-shadow:0 0 0 2px var(--color-bg)"></div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">{{ p.brand }} · {{ p.domain }}</div>
+        <div style="font-size:16px;font-weight:800;letter-spacing:-.025em;line-height:1.2;margin-top:4px">{{ p.name }}</div>
+        <div style="font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--color-neutral-700);margin-top:4px">{{ p.colorName }} · for your {{ p.role }}</div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--color-neutral-700);margin-top:3px">{{ p.meta }}</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;gap:8px">
+          <div style="font-size:14px;font-weight:800">{{ p.price }}</div>
+          <div style="font-size:9px;font-weight:800;letter-spacing:.14em;text-decoration:underline;text-underline-offset:3px">SHOP ↗</div>
+        </div>
+      </div>
+    </a>
   </sc-for>
+  <sc-if value="{{ noProducts }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:18px 0;font-size:13px;line-height:1.6;color:var(--color-neutral-700)">No listings match this palette with these filters. Loosen a filter or try another harmony. DSW has no linked listings yet.</div>
+  </sc-if>
   <div style="height:36px"></div>
 </div>
 </sc-if>
@@ -358,29 +402,66 @@ a{color:var(--color-accent)}a:hover{color:var(--color-accent-700)}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:500,&quot;height&quot;:980},&quot;defaultHarmony&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;complementary&quot;,&quot;analogous&quot;,&quot;triadic&quot;,&quot;split&quot;],&quot;default&quot;:&quot;complementary&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Combinations&quot;},&quot;defaultView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;proportion&quot;,&quot;spectrum&quot;,&quot;garment&quot;],&quot;default&quot;:&quot;proportion&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Combinations&quot;},&quot;showTheory&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Combinations&quot;},&quot;cameraEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Capture&quot;}}">
 class Component extends DCLogic {
-  state = { screen:'scan', hex:null, shot:'', harmony:null, view:null, cam:'idle', flash:0, saved:null, savedFlag:false, linkUrl:'', linkBusy:false, linkErr:'', source:null };
+  state = { screen:'scan', hex:null, shot:'', harmony:null, view:null, cam:'idle', flash:0, saved:null, savedFlag:false, linkUrl:'', linkBusy:false, linkErr:'', source:null, live:{}, fPrice:'all', fStore:'all', fSize:'all', fMat:'all', filtersOpen:false };
+
+  componentDidMount(){ this.loadLive(); }
+  loadLive(){
+    this.CATALOG.filter(i=>i.live).forEach(it=>{
+      fetch(it.url+'.js').then(r=>r.ok?r.json():null).then(p=>{
+        if(!p) return;
+        let img=p.featured_image||''; if(img.indexOf('//')===0) img='https:'+img;
+        if(img) img+=(img.indexOf('?')>-1?'&':'?')+'width=400';
+        const vs=p.variants||[];
+        const done=(hex)=>this.setState(s=>({live:Object.assign({},s.live,{[it.url]:{img,hex,price:p.price/100,sizes:[...new Set(vs.filter(v=>v.available!==false).map(v=>v.option1))]}})}));
+        if(!img) return done(null);
+        const im=new Image(); im.crossOrigin='anonymous';
+        im.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=40; c.height=40; const x=c.getContext('2d'); x.drawImage(im,0,0,40,40);
+          const d=x.getImageData(14,12,12,16).data; let r=0,g=0,b=0,n=0; for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++;}
+          done(this.rgbToHex(r/n,g/n,b/n)); }catch(e){ done(null); } };
+        im.onerror=()=>done(null); im.src=img;
+      }).catch(()=>{});
+    });
+  }
+  hexOf(it){ const L=this.state.live[it.url]; return (L&&L.hex)||it.hex||null; }
+  info(it){
+    const L=this.state.live[it.url]||{};
+    let priceNum=null, priceStr='';
+    if(L.price!=null){ priceNum=L.price; priceStr='$'+(L.price%1?L.price.toFixed(2):L.price); }
+    else if(it.price){ const m=it.price.match(/[\d.]+/); priceNum=m?parseFloat(m[0]):null; priceStr=it.price; }
+    const mat = it.mat||'—';
+    const sizes = (L.sizes&&L.sizes.length?L.sizes:null) || it.sizes || null;
+    return {img:L.img||'', priceNum, priceStr:priceStr||'Price on site', mat, sizes, live:!!L.price};
+  }
+  setF = (k,v)=>()=>this.setState({[k]:v});
 
   SAMPLES = ['https://www.cos.com/en/women/coats/wool-wrap-coat-camel','https://www.arket.com/en/men/shirts/linen-overshirt-sage','https://www.uniqlo.com/us/en/products/merino-crew-sweater-navy'];
   LISTING_PALETTE = ['#8a5a3c','#3f5566','#b9a07a','#5b2f35','#2f4a3a','#c7b9a3','#6d5a7a','#a44a32'];
   CATALOG = [
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Forest Green',hex:'#2f4a36',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-forest-green'},
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Heathered Toffee',hex:'#9a6e4c',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-heathered-toffee'},
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Navy',hex:'#232c42',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-navy'},
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Black',hex:'#1d1d1f',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-black'},
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Toast',hex:'#c9a882',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-toast'},
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Wine',hex:'#5e2330',price:'',url:'https://www.everlane.com/products/womens-cashmere-slim-crew-sweater-wine'},
-    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Canvas',hex:'#d8ccb4',price:'$228',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-canvas'},
-    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Bone / Black',hex:'#e6e0d2',price:'',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-new-bone-black'},
-    {brand:'EVERLANE',item:'The Cashmere Crew (Men)',color:'Navy',hex:'#26304a',price:'',url:'https://www.everlane.com/products/mens-cashmere-crew-tnavy'},
-    {brand:'UNIQLO',item:'Extra Fine Merino Crew Neck Sweater',color:'38 Dark Brown',hex:'#4a3528',price:'$39.90',url:'https://www.uniqlo.com/us/en/products/E429066-000/01'},
-    {brand:'J.CREW',item:'Baird McNutt Irish Linen Shirt',color:'Blue',hex:'#8fb0cf',price:'$118',url:'https://www.jcrew.com/plp/mens/categories/clothing/shirts/linen?l_color=root-blue'},
-    {brand:'J.CREW',item:'Baird McNutt Irish Linen Shirt',color:'White',hex:'#f1efe9',price:'$118',url:'https://www.jcrew.com/plp/mens/categories/clothing/shirts/linen?sub-categories=men-shirts-linen&l_color=root-white'},
-    {brand:'EVERLANE',item:'The Classic Crew in Cashmere',color:'Rusted Red',hex:'#8e3a2c',price:'',url:'https://www.everlane.com/products/womens-cashmere-classic-crew-sweater-rusted-red'},
-    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Rust',hex:'#a4502e',price:'',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-rust'},
-    {brand:'EVERLANE',item:'The Boxy Crew in Cashmere',color:'Berry Red',hex:'#9c2438',price:'',url:'https://www.everlane.com/products/womens-cashmere-boxy-crew-sweater-berry-red'},
-    {brand:'EVERLANE',item:'Cashmere Slim Crew Sweater',color:'Cabernet / Coffee Bean',hex:'#5a2a2c',price:'',url:'https://www.everlane.com/products/f-swtr-ecm-cr-ls-brwnstrp'},
-    {brand:'J.CREW',item:'Cashmere Sweaters (Women)',color:'Yellow',hex:'#e2c25a',price:'$128–$148',url:'https://www.jcrew.com/plp/womens/features/the-cashmere-shop?l_color=root-yellow'},
-    {brand:'J.CREW',item:'Cashmere Sweaters (Women)',color:'Purple',hex:'#7a5a9a',price:'',url:'https://www.jcrew.com/plp/womens/features/the-cashmere-shop?l_color=root-purple'}
+    {brand:'AKIRA',item:'Best Yet Sweater',color:'',hex:'',mat:'Knit',live:true,url:'https://shopakira.com/products/best-yet-sweater'},
+    {brand:'AKIRA',item:'Something About You Sweater',color:'',hex:'',mat:'Cotton',live:true,url:'https://shopakira.com/products/something-about-you-sweater'},
+    {brand:'AKIRA',item:'Teddy Sweater',color:'',hex:'',mat:'Knit',live:true,url:'https://shopakira.com/products/teddy-sweater'},
+    {brand:'AKIRA',item:'Cozy Enough Sweater',color:'',hex:'',mat:'Knit',live:true,url:'https://shopakira.com/products/cozy-enough-sweater'},
+    {brand:'AKIRA',item:'Honey Cross Front Fuzzy Sweater',color:'',hex:'',mat:'Knit',live:true,url:'https://shopakira.com/products/honey-cross-front-fuzzy-sweater'},
+    {brand:'AKIRA',item:'Sweater Weather Cardigan',color:'',hex:'',mat:'Knit',live:true,url:'https://shopakira.com/products/sweater-weather-cardigan'},
+    {brand:'AKIRA',item:'Wavy Cardigan',color:'',hex:'',mat:'Knit',live:true,url:'https://shopakira.com/products/wavy-cardigan'},
+    {brand:'STEVE MADDEN',item:'Madison Penny Loafer',color:'Red Leather',hex:'#9e1f23',mat:'Leather',url:'https://www.stevemadden.com/products/madison-red-leather'},
+    {brand:'STEVE MADDEN',item:'Madison Penny Loafer',color:'Red Suede',hex:'#8f2227',mat:'Suede',url:'https://www.stevemadden.com/products/madison-red-suede'},
+    {brand:'STEVE MADDEN',item:'Madison Penny Loafer',color:'Black Leather',hex:'#1c1b1b',mat:'Leather',url:'https://www.stevemadden.com/products/madison-black-leather'},
+    {brand:'STEVE MADDEN',item:'Madison Penny Loafer',color:'Black / Red',hex:'#3a1c1c',mat:'Leather',url:'https://www.stevemadden.com/products/madison-black-red'},
+    {brand:'STEVE MADDEN',item:'Madison Penny Loafer',color:'Brown Cow Print',hex:'#6b4a32',mat:'Leather',url:'https://www.stevemadden.com/products/madison-c-brown-multi'},
+    {brand:'STEVE MADDEN',item:'Natan Slip-On Loafer (Men)',color:'Brown Multi',hex:'#6a4630',mat:'Leather',url:'https://www.stevemadden.com/products/natan-brown-multi'},
+    {brand:'MICAS',item:'Button Sweater Maxi Dress',color:'Red',hex:'#a4262c',mat:'Acrylic',url:'https://shopmicas.com/products/mcwkd2410290058'},
+    {brand:'MICAS',item:'Color Block Print Button Sweater Cardigan',color:'Gray / Khaki / Green',hex:'#8a8a6a',mat:'Acrylic',url:'https://shopmicas.com/products/mcwkn2409020207'},
+    {brand:'MICAS',item:'3pc Sweater Pocket Drawstring Pants Set',color:'Coffee',hex:'#5a4032',mat:'Acrylic',price:'$37.90',url:'https://shopmicas.com/products/mcwkc2411050007'},
+    {brand:'ASOS',item:'ASOS DESIGN Oversized Knitted Off Shoulder Sweater',color:'Cream',hex:'#ece3d0',mat:'Knit',url:'https://www.asos.com/us/asos-design/asos-design-oversized-knitted-off-shoulder-sweater-in-cream/prd/207245676'},
+    {brand:'ASOS',item:'ASOS DESIGN Neat Fit Lightweight Crew Neck Sweater',color:'Black',hex:'#1d1d1d',mat:'Knit',price:'$39.99',url:'https://www.asos.com/us/women/sweaters-cardigans/sweaters/refine/black/cat/?cid=15160&refine=base_colour%3A4'},
+    {brand:'REVOLVE',item:'Free People Bardot Sweater',color:'Grey',hex:'#8e8e90',mat:'Acrylic',url:'https://www.revolve.com/free-people-bardot-sweater/dp/FREE-WK707/'},
+    {brand:'REVOLVE',item:'Free People Bardot Sweater',color:'Green Combo',hex:'#5f7a55',mat:'Cotton',url:'https://www.revolve.com/free-people-bardot-sweater/dp/FREE-WK718/'},
+    {brand:'ZARA',item:'Women\'s Cashmere Sweaters (category)',color:'Warm Neutrals',hex:'#b9a88f',mat:'Cashmere',url:'https://www.zara.com/us/en/woman-knitwear-cashmere-l1158.html'},
+    {brand:'ZARA',item:'Women\'s Wool Sweaters (category)',color:'Assorted',hex:'#9aa3a8',mat:'Wool',url:'https://www.zara.com/us/en/woman-knitwear-wool-l4449.html'},
+    {brand:'MANGO',item:'Wool Sweaters & Cardigans (category)',color:'Assorted',hex:'#7b6f65',mat:'Wool',url:'https://shop.mango.com/us/en/c/women/sweaters-and-cardigans/wool/e9619b44'},
+    {brand:'MANGO',item:'Women\'s Cardigans (category)',color:'Assorted',hex:'#a09080',mat:'Knit',url:'https://shop.mango.com/us/en/c/women/sweaters-and-cardigans/cardigans/a1073365'},
+    {brand:'AMAZON',item:'MANGO Women\'s Sweaters on Amazon (search)',color:'Assorted',hex:'#8c8279',mat:'Knit',url:'https://www.amazon.com/Womens-Sweaters-MANGO-Clothing/s?rh=n%3A1044456%2Cp_4%3AMANGO'}
   ];
 
   onLink = (e)=>this.setState({linkUrl:e.target.value, linkErr:''});
@@ -481,11 +562,12 @@ class Component extends DCLogic {
     const used=new Set(); const out=[];
     for(const d of defs){
       const t=lab(d[1]); let best=null,bd=1e9;
-      for(const it of this.CATALOG){ if(used.has(it.url)) continue; const m=lab(it.hex);
+      for(const it of this.CATALOG){ if(used.has(it.url)) continue; const hx=this.hexOf(it); if(!hx) continue; const m=lab(hx);
         const de=Math.sqrt((t[0]-m[0])**2+(t[1]-m[1])**2+(t[2]-m[2])**2); if(de<bd){bd=de;best=it;} }
       if(!best || bd>30) continue; used.add(best.url);
-      out.push({relation:d[0],hex:best.hex,colorName:best.color,brand:best.brand,item:best.item,
-        price:best.price||'PRICE ON SITE', match:'ΔE '+Math.round(bd)+(bd<12?' · CLOSE':bd<25?' · NEAR':' · LOOSE'),
+      const inf=this.info(best);
+      out.push({relation:d[0],hex:this.hexOf(best),colorName:best.color||this.nameOf(this.hexOf(best)),brand:best.brand,item:best.item,
+        img:inf.img, hasImg:!!inf.img, price:inf.priceStr, match:'ΔE '+Math.round(bd)+(bd<12?' · CLOSE':bd<25?' · NEAR':' · LOOSE'),
         onTap:()=>window.open(best.url,'_blank','noopener')});
     }
     return out;
@@ -562,12 +644,12 @@ class Component extends DCLogic {
     const second=combos[1]||combos[0];
     const third=combos[2]||combos[0];
     const rule = H==='analogous'
-      ? 'Three hues sitting within 32° of each other. Low contrast, high cohesion — the outfit reads as one considered color rather than a set of choices.'
+      ? 'Colors that sit right next to each other on the color wheel. They blend together softly, so the outfit looks calm and matched.'
       : H==='triadic'
-      ? 'Three hues spaced evenly around the wheel. Maximum variety at equal strength, so the proportions do the disciplining.'
+      ? 'Three colors spread evenly around the color wheel, like the points of a triangle. It’s bold and fun, so let one color lead and keep the others small.'
       : H==='split'
-      ? 'The two hues flanking the direct opposite. You get the tension of a complement without the head-on collision.'
-      : 'The hue directly opposite on the wheel. The sharpest available contrast — which is why it belongs in the smallest quantity.';
+      ? 'Instead of the exact opposite color, you use the two colors on either side of it. You still get a pop, but it’s gentler.'
+      : 'The color straight across the color wheel. Opposites make each other stand out the most, so use just a little of the second color.';
     return [
       {title:'The rule', text:rule},
       {title:'How to wear it', text:'Let '+anchor.name.toLowerCase()+' carry the look — coat, suit or dress. Bring '+second.name.toLowerCase()+' in at a third of the surface: knitwear, a shirt, the trouser. Keep '+third.name.toLowerCase()+' to one object — bag, scarf, shoe. Ground anything left over in '+neutral+'.'},
@@ -587,7 +669,7 @@ class Component extends DCLogic {
     const undertone = lab[2]>8?'warm undertone':lab[2]<-4?'cool undertone':'neutral undertone';
     const valueWord = l<26?'deep':l<58?'mid-value':'light';
     const chromaWord = s<14?'near-neutral':s<44?'muted':'vivid';
-    const hTitle = H==='analogous'?'Analogous':H==='triadic'?'Triadic':H==='split'?'Split-complementary':'Complementary';
+    const hTitle = H==='analogous'?'Neighbors':H==='triadic'?'Trio':H==='split'?'Split pair':'Opposites';
     const tabDef=[['scan','SCAN'],['combos','COMBOS'],['library','LIBRARY'],['shop','SHOP']];
     const stops=[]; for(let i=0;i<=12;i++) stops.push(this.hslToHex(i*30, this.clamp(s,22,80), this.clamp(l,36,68)));
     const anchor=combos.find(c=>c.role==='Anchor')||combos[0];
@@ -600,8 +682,29 @@ class Component extends DCLogic {
       {slot:'ACCENT',hex:third.hex,name:third.name,note:'BAG · SCARF · SHOE',span:2,h:56}
     ].map(x=>Object.assign(x,{on:this.on(x.hex)}));
     const prodNames=[['ROHE','Belted wool overcoat','$690'],['STUDIO NICHOLSON','Wide-leg twill trouser','$395'],['LEMAIRE','Silk scarf, hand-rolled','$210'],['ARKET','Merino crew knit','$119'],['TOTEME','Leather tote','$540']];
-    const products=prodNames.map((p,i)=>{ const c=combos[i%combos.length];
-      return {brand:p[0],name:p[1],price:p[2],hex:c.hex,colorName:c.name,role:c.role.toUpperCase(),on:c.on}; });
+    const labOf=(x)=>{ const c=this.hexToRgb(x); return this.rgbToLab(c[0],c[1],c[2]); };
+    const ranked=this.CATALOG.filter(it=>this.hexOf(it)).map(it=>{ const m=labOf(this.hexOf(it)); let bd=1e9,bc=combos[0];
+      for(const c of combos){ const t=labOf(c.hex); const de=Math.sqrt((t[0]-m[0])**2+(t[1]-m[1])**2+(t[2]-m[2])**2); if(de<bd){bd=de;bc=c;} }
+      return {it,bd,bc}; }).filter(x=>x.bd<=35).sort((a,b)=>a.bd-b.bd);
+    const F=this.state; const products=[];
+    const PR={u50:[0,50],m:[50,150],h:[150,1e9]};
+    for(const x of ranked){ const it=x.it, inf=this.info(it);
+      if(F.fStore!=='all' && it.brand!==F.fStore) continue;
+      if(F.fMat!=='all' && inf.mat!==F.fMat) continue;
+      if(F.fPrice!=='all'){ if(inf.priceNum==null) continue; const r=PR[F.fPrice]; if(inf.priceNum<r[0]||inf.priceNum>=r[1]) continue; }
+      if(F.fSize!=='all' && !(inf.sizes && inf.sizes.indexOf(F.fSize)>-1)) continue;
+      products.push({brand:it.brand,name:it.item,price:inf.priceStr,hex:this.hexOf(it),colorName:it.color||this.nameOf(this.hexOf(it)),img:inf.img,hasImg:!!inf.img,
+        meta:inf.mat+(inf.sizes?' · '+inf.sizes.join(' '):' · sizes on site'),
+        role:x.bc.role.toLowerCase(),url:it.url,domain:new URL(it.url).hostname.replace(/^www\./,'').toUpperCase()});
+    }
+    const chip=(k,v,l)=>({label:l,onTap:this.setF(k,v),bg:F[k]===v?'var(--color-text)':'transparent',fg:F[k]===v?'var(--color-bg)':'var(--color-text)',bd:F[k]===v?'var(--color-text)':'var(--color-neutral-300)'});
+    const filterGroups=[
+      {label:'PRICE',opts:[chip('fPrice','all','ALL'),chip('fPrice','u50','UNDER $50'),chip('fPrice','m','$50–150'),chip('fPrice','h','$150+')]},
+      {label:'STORE',opts:[chip('fStore','all','ALL')].concat(['AMAZON','ASOS','MICAS','ZARA','MANGO','AKIRA','REVOLVE','DSW','STEVE MADDEN'].map(b=>chip('fStore',b,b)))},
+      {label:'SIZE',opts:[chip('fSize','all','ALL'),chip('fSize','XS','XS'),chip('fSize','S','S'),chip('fSize','M','M'),chip('fSize','L','L'),chip('fSize','XL','XL')]},
+      {label:'MATERIAL',opts:[chip('fMat','all','ALL')].concat(['Knit','Acrylic','Cotton','Wool','Cashmere','Leather','Suede'].map(m=>chip('fMat',m,m.toUpperCase())))}
+    ];
+    const anyFilter=F.fPrice!=='all'||F.fStore!=='all'||F.fSize!=='all'||F.fMat!=='all';
     const seen={};
     const markers=combos.map(c=>{ const k=Math.round(c.deg); const n=seen[k]||0; seen[k]=n+1;
       return {x:this.clamp(c.x,7,93).toFixed(1), hex:c.hex, deg:n?'':c.degLabel, top:6+n*40}; });
@@ -614,6 +717,7 @@ class Component extends DCLogic {
       camFailed: this.state.cam==='fail',
       flashOp: this.state.flash,
       setVideo:this.setVideo, capture:this.capture, retryCam:this.retryCam,
+      retryFromResult:()=>{ if(this.stream){ this.stream.getTracks().forEach(t=>t.stop()); this.stream=null; } this.setState({screen:'scan',cam:'idle'}); },
       fallbacks:this.FALLBACKS.map(f=>({hex:f[0],label:f[1],onTap:()=>this.commit(f[0],'')})),
       hex, on:this.on(hex), name:this.nameOf(hex), nameUpper:this.nameOf(hex).toUpperCase(), family:this.familyOf(h,s),
       setShot:(el)=>{ if(!el) return; const lbl=this.state.source?'LISTING':'NO PHOTO'; const ph='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="70" height="88"><rect width="70" height="88" fill="#d7d3d3"/><text x="35" y="47" font-family="Archivo,sans-serif" font-size="9" font-weight="800" letter-spacing="0.8" fill="#444141" text-anchor="middle">'+lbl+'</text></svg>'); el.src=this.state.shot||ph; },
@@ -635,7 +739,7 @@ class Component extends DCLogic {
       saveLabel:this.state.savedFlag?'SAVED':'SAVE',
       save:this.save, retake:this.go('scan'), toCombos:this.go('combos'), toShop:this.go('shop'),
       combos, harmonyTitle:hTitle, harmonyUpper:hTitle.toUpperCase(), showTheory:this.props.showTheory !== false,
-      harmonyTabs:[['complementary','COMPLEMENT'],['analogous','ANALOGOUS'],['triadic','TRIADIC'],['split','SPLIT']].map(t=>({
+      harmonyTabs:[['complementary','OPPOSITES'],['analogous','NEIGHBORS'],['triadic','TRIO'],['split','SPLIT PAIR']].map(t=>({
         label:t[1], onTap:this.setH(t[0]),
         bg: H===t[0]?'var(--color-accent)':'transparent',
         bd: H===t[0]?'var(--color-accent)':'var(--color-neutral-300)',
@@ -655,7 +759,9 @@ class Component extends DCLogic {
         const good=d<26;
         return Object.assign({},item,{match:good?'STRONG MATCH':d<70?'WORKS':'CLASHES',matchColor:good?'var(--color-accent-700)':'var(--color-neutral-800)'});
       }),
-      libCount:lib.length, saved:lib, products,
+      libCount:lib.length, saved:lib, products, noProducts:products.length===0,
+      filterGroups, anyFilter, filtersOpen:this.state.filtersOpen, toggleFilters:()=>this.setState(s=>({filtersOpen:!s.filtersOpen})), filterToggleLabel:(this.state.filtersOpen?'HIDE FILTERS':'FILTERS')+(anyFilter?' · '+[F.fPrice,F.fStore,F.fSize,F.fMat].filter(v=>v!=='all').length+' ON':''), filterIcon:this.state.filtersOpen?'−':'+', noDswNote:F.fStore==='DSW', resultCount:products.length+(products.length===1?' listing':' listings'),
+      clearFilters:()=>this.setState({fPrice:'all',fStore:'all',fSize:'all',fMat:'all'}),
       tabs:tabDef.map(t=>({label:t[1],onTap:this.go(t[0]),
         bar: screen===t[0]?'var(--color-accent)':'transparent',
         fg: screen===t[0]?'var(--color-text)':'var(--color-neutral-800)'}))
